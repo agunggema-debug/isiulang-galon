@@ -30,8 +30,16 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files - ignore actual env files but keep templates
+.env
+.env.local
+.env.*.local
+.env.[0-9]*
+
+# Database files (local development)
+*.db
+*.db-shm
+*.db-wal
 
 # vercel
 .vercel
@@ -39,3 +47,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Keep templates
+!.env.local.example
+!.env.example
