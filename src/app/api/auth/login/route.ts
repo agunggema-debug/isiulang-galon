@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initDatabase } from "@/lib/database";
-import { initAuth, loginUser } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
+
+interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: "admin" | "wholesale" | "retail";
+  phone: string;
+  address: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    // Initialize database and auth on first request
-    initDatabase();
-    initAuth();
-
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -18,35 +22,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await loginUser(email, password);
+    const supabase = createSupabaseServerClient();
 
-    if (!result.success) {
+    if (!supabase) {
       return NextResponse.json(
-        { success: false, error: result.error },
+        { success: false, error: "Supabase belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
+
+    // Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message || "Email atau password salah" },
         { status: 401 }
       );
     }
 
+    // Get user profile from our users table
+    const { data: userData } = await supabase
+      .from("users")
+      .select("id, email, name, role, phone, address")
+      .eq("email", email)
+      .single();
+
+    if (!userData) {
+      return NextResponse.json(
+        { success: false, error: "User tidak ditemukan di database" },
+        { status: 404 }
+      );
+    }
+
+    // Set session cookie from Supabase
     const response = NextResponse.json({
       success: true,
-      user: result.user,
-      redirectUrl:
-        result.user?.role === "admin"
-          ? "/admin/dashboard"
-          : result.user?.role === "wholesale"
-          ? "/shop?role=wholesale"
-          : "/shop?role=retail",
+      user: userData as User,
+      redirectUrl: (userData as User).role === "admin"
+        ? "/admin/dashboard"
+        : (userData as User).role === "wholesale"
+        ? "/shop?role=wholesale"
+        : "/shop?role=retail",
     });
 
-    // Set session cookie
-    response.cookies.set("session_id", result.sessionId!, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: result.user?.role === "admin" ? 7200 : 604800, // 2 hours or 7 days
-      path: "/",
-    });
-
+    // Supabase sets its own cookies automatically via @supabase/ssr
     return response;
   } catch (error) {
     console.error("Login error:", error);

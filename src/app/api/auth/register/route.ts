@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { initDatabase, getDb } from "@/lib/database";
-import { initAuth, createSession } from "@/lib/auth";
-import bcrypt from "bcryptjs";
+import { createSupabaseServerClient } from "@/lib/supabase";
+import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   try {
-    // Initialize database and auth on first request
-    initDatabase();
-    initAuth();
-
     const { name, email, password, phone, address } = await request.json();
 
     // Validation
@@ -26,12 +21,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getDb();
+    const supabase = createSupabaseServerClient();
 
-    // Check if email already exists
-    const existingUser = db
-      .prepare("SELECT id FROM users WHERE email = ?")
-      .get(email);
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: "Supabase belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
+
+    // Check if email already exists in our users table
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", email)
+      .single();
 
     if (existingUser) {
       return NextResponse.json(
@@ -40,57 +44,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert user with retail role by default
-    const result = db
-      .prepare(
-        "INSERT INTO users (email, password, name, role, phone, address) VALUES (?, ?, ?, ?, ?, ?)"
-      )
-      .run(email, hashedPassword, name, "retail", phone || "", address || "");
-
-    const userId = result.lastInsertRowid as number;
-
-    // Create session
-    const sessionId = await createSession(userId);
-
-    // Get user data with proper typing
-    interface UserResponse {
-      id: number;
-      email: string;
-      name: string;
-      role: string;
-      phone: string;
-      address: string;
-    }
-    const user = db
-      .prepare("SELECT id, email, name, role, phone, address FROM users WHERE id = ?")
-      .get(userId) as UserResponse;
-
-    const response = NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        phone: user.phone,
-        address: user.address,
+    // Sign up with Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          role: "retail", // Default role
+          phone: phone || "",
+          address: address || "",
+        },
       },
-      redirectUrl: "/shop?role=retail",
     });
 
-    // Set session cookie
-    response.cookies.set("session_id", sessionId, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 604800, // 7 days
-      path: "/",
-    });
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message || "Gagal mendaftar" },
+        { status: 400 }
+      );
+    }
 
-    return response;
+    // Create user profile in our users table
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const userId = (data as any)?.user?.id;
+    if (userId) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: profileError } = await (supabase as any).from("users").insert({
+        id: userId,
+        email: email,
+        name: name,
+        role: "retail",
+        phone: phone || "",
+        address: address || "",
+      });
+
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // Don't fail registration if profile creation fails
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Pendaftaran berhasil. Silakan cek email untuk konfirmasi.",
+    });
   } catch (error) {
     console.error("Register error:", error);
     return NextResponse.json(
