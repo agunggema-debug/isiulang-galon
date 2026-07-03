@@ -1,37 +1,67 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/database";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
-import type { ProductRow } from "@/lib/types";
 
 export async function GET() {
   try {
-    const db = getDb();
-    const products = db
-      .prepare(
-        `SELECT p.*, c.name as category_name, c.slug as category_slug, c.icon as category_icon
-         FROM products p
-         JOIN categories c ON p.category_id = c.id
-         WHERE p.status = 'Tersedia'
-         ORDER BY p.id ASC`
-      )
-      .all() as ProductRow[];
+    const supabase = createSupabaseServerClient();
 
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Supabase belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
+
+    // Supabase query with join
+    const { data: products, error } = await supabase
+      .from("products")
+      .select(`
+        id,
+        name,
+        category_id,
+        retail_price,
+        wholesale_price,
+        stock,
+        min_wholesale_qty,
+        unit,
+        status,
+        categories!inner(
+          name,
+          slug,
+          icon
+        )
+      `)
+      .eq("status", "Tersedia")
+      .order("id");
+
+    if (error) {
+      console.error("Supabase products error:", error);
+      return NextResponse.json(
+        { error: "Terjadi kesalahan server" },
+        { status: 500 }
+      );
+    }
+
+    // Type assertion for Supabase response
     return NextResponse.json({
-      products: products.map((p) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      products: (products as any[])?.map((p) => ({
         id: p.id,
         name: p.name,
-        category: p.category_name,
-        categorySlug: p.category_slug,
-        categoryIcon: p.category_icon,
+        category: p.categories?.name || "",
+        categorySlug: p.categories?.slug || "",
+        categoryIcon: p.categories?.icon || "Package",
         retailPrice: p.retail_price,
         wholesalePrice: p.wholesale_price,
         stock: p.stock,
-        unit: p.unit,
+        minOrder: p.min_wholesale_qty,
         status: p.status,
-      })),
+        unit: p.unit,
+      })) || [],
     });
   } catch (error) {
-    console.error("Public products error:", error);
+    console.error("Products error:", error);
     return NextResponse.json(
       { error: "Terjadi kesalahan server" },
       { status: 500 }

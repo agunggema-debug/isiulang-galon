@@ -1,20 +1,30 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/database";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function GET() {
   try {
-    const db = getDb();
-    const rows = db.prepare("SELECT key, value FROM settings").all() as Array<Record<string, string>>;
+    const supabase = createSupabaseServerClient();
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Supabase belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
+
+    // Supabase query
+    const { data } = await supabase.from("settings").select("key, value");
 
     const settings: Record<string, string> = {};
-    for (const row of rows) {
-      settings[row.key as string] = row.value as string;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data as any[])?.forEach((row: { key: string; value: string }) => {
+      settings[row.key] = row.value;
+    });
 
     return NextResponse.json({ settings });
   } catch (error) {
-    console.error("Public settings error:", error);
+    console.error("Settings error:", error);
     return NextResponse.json(
       { error: "Terjadi kesalahan server" },
       { status: 500 }
