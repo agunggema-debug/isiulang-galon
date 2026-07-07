@@ -9,7 +9,7 @@ export default function Footer() {
   const [storeName, setStoreName] = useState("AquaGas Premium");
   const [storePhone, setStorePhone] = useState("+62 812-3456-7890");
   const [storeAddress, setStoreAddress] = useState("Jl. Contoh No. 123, Jakarta");
-  const [storeEmail, setStoreEmail] = useState("info@aquagaspremium.com");
+  const [storeEmail, setStoreEmail] = useState("feyhareudang@gmail.com");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -32,21 +32,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={32}
-                height={32}
-                className="h-8 w-auto brightness-0 invert"
-              />
-              <span className="text-lg font-bold">
-                {storeName}
-              </span>
+              <Image src="/logo.png" alt="Logo" width={32} height={32} className="h-8 w-auto brightness-0 invert" />
+              <span className="text-lg font-bold">{storeName}</span>
             </Link>
-            <p className="text-sm text-blue-200 leading-relaxed">
-              Solusi terpercaya untuk kebutuhan air galon murni dan gas elpiji 
-              berkualitas tinggi. Antar cepat, harga terbaik.
-            </p>
+            <p className="text-sm text-blue-200 leading-relaxed">Solusi terpercaya untuk kebutuhan air galon murni dan gas elpiji berkualitas tinggi. Antar cepat, harga terbaik.</p>
             <div className="flex items-center gap-3">
               <a href="#" className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                 <Camera className="h-4 w-4" />
@@ -71,10 +60,7 @@ export default function Footer() {
                 { href: "#kontak", label: "Kontak" },
               ].map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-blue-200 hover:text-white transition-colors"
-                  >
+                  <Link href={link.href} className="text-sm text-blue-200 hover:text-white transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -86,17 +72,9 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-white mb-4">Produk</h3>
             <ul className="space-y-3">
-              {[
-                "Air Galon 19L",
-                "Gas Elpiji 3kg",
-                "Gas Elpiji 5.5kg",
-                "Air Mineral Kemasan",
-              ].map((product) => (
+              {["Air Galon 19L", "Gas Elpiji 3kg", "Gas Elpiji 5.5kg", "Air Mineral Kemasan"].map((product) => (
                 <li key={product}>
-                  <Link
-                    href="#produk"
-                    className="text-sm text-blue-200 hover:text-white transition-colors"
-                  >
+                  <Link href="#produk" className="text-sm text-blue-200 hover:text-white transition-colors">
                     {product}
                   </Link>
                 </li>
@@ -110,9 +88,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-[#10B981] flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-blue-200">
-                  {storeAddress}
-                </span>
+                <span className="text-sm text-blue-200">{storeAddress}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-[#10B981] flex-shrink-0" />
