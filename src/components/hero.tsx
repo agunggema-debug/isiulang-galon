@@ -27,10 +27,7 @@ export default function Hero() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [productsRes, settingsRes] = await Promise.all([
-          fetch("/api/products"),
-          fetch("/api/settings"),
-        ]);
+        const [productsRes, settingsRes] = await Promise.all([fetch("/api/products"), fetch("/api/settings")]);
 
         if (productsRes.ok) {
           const productsData = await productsRes.json();
@@ -57,15 +54,9 @@ export default function Hero() {
   const gasProduct = products.find((p) => p.categorySlug === "gas-elpiji");
 
   // Use settings if available, otherwise use product prices, otherwise fallback
-  const refillPrice = settings.refill_price 
-    ? parseInt(settings.refill_price) 
-    : refillProduct?.retailPrice || 5000;
-  const waterPrice = settings.water_price 
-    ? parseInt(settings.water_price) 
-    : waterProduct?.retailPrice || 18000;
-  const gasPrice = settings.gas_price 
-    ? parseInt(settings.gas_price) 
-    : gasProduct?.retailPrice || 22000;
+  const refillPrice = settings.refill_price ? parseInt(settings.refill_price) : refillProduct?.retailPrice || 6000;
+  const waterPrice = settings.water_price ? parseInt(settings.water_price) : waterProduct?.retailPrice || 18000;
+  const gasPrice = settings.gas_price ? parseInt(settings.gas_price) : gasProduct?.retailPrice || 22000;
 
   const formatPrice = (price: number) => {
     if (price >= 1000) {
@@ -101,9 +92,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-xl">
-              Nikmati kemudahan pemesanan air galon murni dan gas elpiji berkualitas 
-              tinggi dengan layanan antar cepat dan harga terbaik. Higienis, terpercaya, 
-              dan selalu tepat waktu.
+              Nikmati kemudahan pemesanan air galon murni dan gas elpiji berkualitas tinggi dengan layanan antar cepat dan harga terbaik. Higienis, terpercaya, dan selalu tepat waktu.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -151,13 +140,7 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">Hemat · Cepat · Mudah</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#F59E0B]">
-                      {loading ? (
-                        <span className="animate-pulse">...</span>
-                      ) : (
-                        formatPrice(refillPrice)
-                      )}
-                    </span>
+                    <span className="text-lg font-bold text-[#F59E0B]">{loading ? <span className="animate-pulse">...</span> : formatPrice(refillPrice)}</span>
                   </div>
                 </div>
               </div>
@@ -173,13 +156,7 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">19L · Steril · Siap Minum</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#0F4C81]">
-                      {loading ? (
-                        <span className="animate-pulse">...</span>
-                      ) : (
-                        formatPrice(waterPrice)
-                      )}
-                    </span>
+                    <span className="text-lg font-bold text-[#0F4C81]">{loading ? <span className="animate-pulse">...</span> : formatPrice(waterPrice)}</span>
                   </div>
                 </div>
               </div>
@@ -195,13 +172,7 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">Bersih · Aman · Bersubsidi</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#10B981]">
-                      {loading ? (
-                        <span className="animate-pulse">...</span>
-                      ) : (
-                        formatPrice(gasPrice)
-                      )}
-                    </span>
+                    <span className="text-lg font-bold text-[#10B981]">{loading ? <span className="animate-pulse">...</span> : formatPrice(gasPrice)}</span>
                   </div>
                 </div>
               </div>
