@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
@@ -30,8 +30,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use service client for database operations (bypasses RLS)
+    const serviceClient = createSupabaseServiceClient();
+
+    if (!serviceClient) {
+      return NextResponse.json(
+        { success: false, error: "Service role key belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
+
     // Check if email already exists in our users table
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await serviceClient
       .from("users")
       .select("id")
       .eq("email", email)
@@ -44,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sign up with Supabase Auth
+    // Sign up with Supabase Auth (use SSR client for auth)
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -65,12 +75,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user profile in our users table
+    // Create user profile in our users table (use service client to bypass RLS)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userId = (data as any)?.user?.id;
     if (userId) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: profileError } = await (supabase as any).from("users").insert({
+      const { error: profileError } = await (serviceClient as any).from("users").insert({
         id: userId,
         email: email,
         name: name,

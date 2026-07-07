@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function GET() {
@@ -22,8 +22,15 @@ export async function GET() {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
+    // Use service client to bypass RLS when querying users table
+    const serviceClient = createSupabaseServiceClient();
+
+    if (!serviceClient) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
     // Get user profile from our users table
-    const { data: userData } = await supabase
+    const { data: userData } = await serviceClient
       .from("users")
       .select("id, email, name, role, phone, address")
       .eq("email", user.email)

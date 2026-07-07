@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 interface User {
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Email dan password harus diisi" }, { status: 400 });
     }
 
+    // Use SSR client for authentication (handles session cookies)
     const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
@@ -45,8 +46,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: error.message || "Email atau password salah" }, { status: 401 });
     }
 
+    // Use service client for database operations (bypasses RLS)
+    const serviceClient = createSupabaseServiceClient();
+
+    if (!serviceClient) {
+      return NextResponse.json({ success: false, error: "Service role key belum dikonfigurasi" }, { status: 500 });
+    }
+
     // Get user profile from our users table (using service role to bypass RLS)
-    const { data: userData } = await supabase.from("users").select("id, email, name, role, phone, address").eq("email", email).single();
+    const { data: userData } = await serviceClient.from("users").select("id, email, name, role, phone, address").eq("email", email).single();
 
     let finalUserData = userData;
 
@@ -54,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (!userData) {
       const userMetadata = data.user?.user_metadata || {};
 
-      const { data: newUser, error: createError } = await supabase
+      const { data: newUser, error: createError } = await serviceClient
         .from("users")
         .insert({
           email: email,

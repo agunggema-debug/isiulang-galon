@@ -53,3 +53,22 @@ export async function createSupabaseServerClient() {
 
   return supabase;
 }
+
+// Server-side Supabase client with service role key (bypasses RLS)
+// Use ONLY for database operations that need to bypass RLS (e.g., creating user profiles)
+export function createSupabaseServiceClient() {
+  if (!hasSupabaseConfig || !supabaseServiceKey) {
+    return null;
+  }
+
+  return createClient(
+    supabaseUrl!,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+}

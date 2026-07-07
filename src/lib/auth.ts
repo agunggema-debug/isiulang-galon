@@ -1,6 +1,5 @@
 // Auth layer - uses Supabase in production
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase";
 
 interface User {
   id: string | number;
@@ -22,24 +21,13 @@ export async function createSession(userId: number): Promise<string> {
 }
 
 export async function getSession(): Promise<{ user: User } | null> {
-  const cookieStore = await cookies();
-
   // Check if Supabase env vars are set
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return null;
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return null;
 
   const {
     data: { user },
@@ -50,8 +38,12 @@ export async function getSession(): Promise<{ user: User } | null> {
     return null;
   }
 
+  // Use service client to bypass RLS when querying users table
+  const serviceClient = createSupabaseServiceClient();
+  if (!serviceClient) return null;
+
   // Get user profile from our users table
-  const { data: userData } = await supabase
+  const { data: userData } = await serviceClient
     .from("users")
     .select("id, email, name, role, phone, address")
     .eq("email", user.email)
