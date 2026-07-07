@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/database";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
@@ -10,18 +10,28 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = getDb();
-    const categories = db
-      .prepare("SELECT id, name, slug, icon FROM categories ORDER BY id ASC")
-      .all() as Array<Record<string, unknown>>;
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase belum dikonfigurasi" }, { status: 500 });
+    }
+
+    const { data: categories, error } = await supabase
+      .from("categories")
+      .select("id, name, slug, icon")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.error("Supabase categories error:", error);
+      return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+    }
 
     return NextResponse.json({
-      categories: categories.map((c) => ({
-        id: c.id as number,
-        name: c.name as string,
-        slug: c.slug as string,
-        icon: c.icon as string,
-      })),
+      categories: categories?.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        icon: c.icon,
+      })) || [],
     });
   } catch (error) {
     console.error("Categories error:", error);

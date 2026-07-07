@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import AdminSidebar from "@/components/admin-sidebar";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth";
-import { initDatabase } from "@/lib/database";
-import { initAuth } from "@/lib/auth";
+import { getSession, initAuth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Dashboard Admin | AquaGas Premium",
@@ -15,8 +13,6 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Initialize database on first load
-  initDatabase();
   initAuth();
 
   const session = await getSession();

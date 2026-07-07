@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/database";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
@@ -10,12 +10,23 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = getDb();
-    const rows = db.prepare("SELECT key, value FROM settings").all() as Array<Record<string, string>>;
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase belum dikonfigurasi" }, { status: 500 });
+    }
+
+    const { data: rows, error } = await supabase
+      .from("settings")
+      .select("key, value");
+
+    if (error) {
+      console.error("Settings GET error:", error);
+      return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+    }
 
     const settings: Record<string, string> = {};
-    for (const row of rows) {
-      settings[row.key as string] = row.value as string;
+    for (const row of rows || []) {
+      settings[row.key] = row.value;
     }
 
     return NextResponse.json({ settings });
@@ -45,17 +56,21 @@ export async function PUT(request: Request) {
       );
     }
 
-    const db = getDb();
-    const upsert = db.prepare(
-      "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
-    );
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase belum dikonfigurasi" }, { status: 500 });
+    }
 
-    const updateAll = db.transaction(() => {
-      for (const [key, value] of Object.entries(settings)) {
-        upsert.run(key, String(value));
+    // Upsert each setting
+    for (const [key, value] of Object.entries(settings)) {
+      const { error: upsertError } = await supabase
+        .from("settings")
+        .upsert({ key, value: String(value) }, { onConflict: "key" });
+
+      if (upsertError) {
+        console.error(`Settings upsert error for key "${key}":`, upsertError);
       }
-    });
-    updateAll();
+    }
 
     return NextResponse.json({ success: true, message: "Pengaturan berhasil disimpan" });
   } catch (error) {

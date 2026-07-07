@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/database";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 import { getSession } from "@/lib/auth";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
@@ -10,28 +10,41 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = getDb();
-    const orders = db
-      .prepare(
-        `SELECT o.id, o.order_number, u.name as customer_name, u.email as customer_email,
-                o.total_amount, o.status, o.payment_method, o.payment_status, o.created_at
-         FROM orders o
-         JOIN users u ON o.user_id = u.id
-         ORDER BY o.created_at DESC`
-      )
-      .all() as Array<Record<string, unknown>>;
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase belum dikonfigurasi" }, { status: 500 });
+    }
+
+    const { data: orders, error } = await supabase
+      .from("orders")
+      .select(`
+        order_number,
+        total_amount,
+        status,
+        payment_method,
+        payment_status,
+        created_at,
+        users!inner(name, email)
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Supabase orders error:", error);
+      return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+    }
 
     return NextResponse.json({
-      orders: orders.map((o) => ({
-        id: o.order_number as string,
-        customer: o.customer_name as string,
-        email: o.customer_email as string,
-        amount: o.total_amount as number,
-        status: o.status as string,
-        paymentMethod: o.payment_method as string,
-        paymentStatus: o.payment_status as string,
-        createdAt: o.created_at as string,
-      })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      orders: (orders as any[])?.map((o) => ({
+        id: o.order_number,
+        customer: o.users?.name || "Unknown",
+        email: o.users?.email || "",
+        amount: o.total_amount,
+        status: o.status,
+        paymentMethod: o.payment_method,
+        paymentStatus: o.payment_status,
+        createdAt: o.created_at,
+      })) || [],
     });
   } catch (error) {
     console.error("Orders error:", error);
