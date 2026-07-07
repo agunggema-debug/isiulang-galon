@@ -1,8 +1,79 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Droplets, Flame, ArrowRight, Shield, Truck, Clock, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  categorySlug: string;
+  retailPrice: number;
+  stock: number;
+  unit: string;
+}
+
+interface Settings {
+  [key: string]: string;
+}
 
 export default function Hero() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [settings, setSettings] = useState<Settings>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [productsRes, settingsRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/settings"),
+        ]);
+
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          setProducts(productsData.products || []);
+        }
+
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          setSettings(settingsData.settings || {});
+        }
+      } catch (error) {
+        console.error("Failed to fetch hero data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  // Find products by category
+  const refillProduct = products.find((p) => p.categorySlug === "refill");
+  const waterProduct = products.find((p) => p.categorySlug === "air-galon");
+  const gasProduct = products.find((p) => p.categorySlug === "gas-elpiji");
+
+  // Use settings if available, otherwise use product prices, otherwise fallback
+  const refillPrice = settings.refill_price 
+    ? parseInt(settings.refill_price) 
+    : refillProduct?.retailPrice || 5000;
+  const waterPrice = settings.water_price 
+    ? parseInt(settings.water_price) 
+    : waterProduct?.retailPrice || 18000;
+  const gasPrice = settings.gas_price 
+    ? parseInt(settings.gas_price) 
+    : gasProduct?.retailPrice || 22000;
+
+  const formatPrice = (price: number) => {
+    if (price >= 1000) {
+      return `Rp${(price / 1000).toFixed(0)}K`;
+    }
+    return `Rp${price}`;
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-[#0F4C81]/5 via-white to-[#10B981]/5">
       {/* Decorative Background Elements */}
@@ -80,7 +151,13 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">Hemat · Cepat · Mudah</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#F59E0B]">Rp5K</span>
+                    <span className="text-lg font-bold text-[#F59E0B]">
+                      {loading ? (
+                        <span className="animate-pulse">...</span>
+                      ) : (
+                        formatPrice(refillPrice)
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -96,7 +173,13 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">19L · Steril · Siap Minum</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#0F4C81]">Rp18K</span>
+                    <span className="text-lg font-bold text-[#0F4C81]">
+                      {loading ? (
+                        <span className="animate-pulse">...</span>
+                      ) : (
+                        formatPrice(waterPrice)
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -112,7 +195,13 @@ export default function Hero() {
                     <p className="text-sm text-gray-500">Bersih · Aman · Bersubsidi</p>
                   </div>
                   <div className="ml-auto">
-                    <span className="text-lg font-bold text-[#10B981]">Rp22K</span>
+                    <span className="text-lg font-bold text-[#10B981]">
+                      {loading ? (
+                        <span className="animate-pulse">...</span>
+                      ) : (
+                        formatPrice(gasPrice)
+                      )}
+                    </span>
                   </div>
                 </div>
               </div>

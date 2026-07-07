@@ -1,11 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Disable image optimization for Netlify (use their built-in)
-  images: {
-    unoptimized: true,
-  },
-
   async headers() {
     return [
       {

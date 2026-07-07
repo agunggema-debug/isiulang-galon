@@ -1,4 +1,4 @@
-# Deployment Guide - Netlify + Supabase
+# Deployment Guide - Vercel + Supabase
 
 ## Overview
 This application supports both local development (SQLite) and production deployment (Supabase).
@@ -22,39 +22,54 @@ This application supports both local development (SQLite) and production deploym
    - Wholesale: `grosir@aquagas.com` / `grosir123`
    - Retail: `retail@aquagas.com` / `retail123`
 
-## Production Deployment (Netlify + Supabase)
+## Production Deployment (Vercel + Supabase)
 
 ### Step 1: Setup Supabase Project
 
 1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to SQL Editor and run the migration script:
+2. Go to SQL Editor and run the migration scripts in order:
    - File: `supabase/migrations/01_initial_schema.sql`
+   - File: `supabase/migrations/02_auth_trigger.sql` (or `02_auto_create_user.sql` if exists)
+   - File: `supabase/migrations/03_fix_users_rls.sql` (if exists)
 3. Go to Authentication > Settings and configure:
    - Enable Email signups
    - Configure email provider
 
-### Step 2: Configure Netlify Environment Variables
+### Step 2: Get Supabase Credentials
 
-**CRITICAL: Make sure to set these environment variables in Netlify Dashboard**
+1. Login to [supabase.com](https://supabase.com)
+2. Select your project
+3. Go to **Project Settings** (gear icon) → **API**
+4. Copy these values:
+   - **Project URL** → for `NEXT_PUBLIC_SUPABASE_URL`
+   - **anon public key** → for `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - **service_role key** → for `SUPABASE_SERVICE_ROLE_KEY`
 
-In Netlify Dashboard > Site Settings > Build & Deploy > Environment > Environment variables:
+### Step 3: Push Code to GitHub
 
-| Variable Name | Value | Required |
-|--------------|-------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL (e.g., `https://xyz.supabase.co`) | ✅ Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key | ✅ Yes |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key | ✅ Yes |
-| `NEXTAUTH_SECRET` | Random secret string for sessions | ❌ Optional |
+```bash
+git add .
+git commit -m "Ready for Vercel deployment"
+git push origin main
+```
 
-### Step 3: Deploy to Netlify
+### Step 4: Deploy to Vercel
 
-1. Connect your Git repository to Netlify
-2. Build settings (auto-detected from netlify.toml):
-   - Build command: `npm run build`
-   - Publish directory: `.next`
-3. Click "Deploy site"
+1. Go to [vercel.com](https://vercel.com) and login
+2. Click **"Add New"** → **"Project"**
+3. Select your repository: `agunggema-debug/isiulang-galon`
+4. In **"Configure Project"** page, add these **Environment Variables**:
 
-### Step 4: Create Admin User via Supabase Auth
+   | Variable Name | Value | Required |
+   |--------------|-------|----------|
+   | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ Yes |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key | ✅ Yes |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key | ✅ Yes |
+
+5. **Build & Output Settings**: Leave as default (Vercel auto-detects Next.js)
+6. Click **"Deploy"**
+
+### Step 5: Create Admin User via Supabase Auth
 
 After deployment:
 1. Go to Supabase Dashboard > Authentication > Users
@@ -68,6 +83,12 @@ After deployment:
    ```
    
    > **Note:** The system now automatically creates user profiles in the `users` table upon first login. Just set the `role` in user metadata.
+
+## Custom Domain (Optional)
+
+1. In Vercel Dashboard → Project → **Settings** → **Domains**
+2. Add your custom domain
+3. Follow Vercel's DNS configuration instructions
 
 ## Troubleshooting
 
@@ -86,16 +107,15 @@ This error means the user exists in Supabase Auth but not in the `users` table. 
 ### 401 Unauthorized after login
 
 This happens when:
-1. Service role key is missing - check `SUPABASE_SERVICE_ROLE_KEY` in Netlify env
+1. Service role key is missing - check `SUPABASE_SERVICE_ROLE_KEY` in Vercel environment variables
 2. RLS policies are blocking access - run the updated migration again
 
 ### 502 Bad Gateway Errors on API Routes
 
 This error occurs when Supabase environment variables are **NOT** configured. Common issues:
 
-1. **Missing Environment Variables**: Check Netlify > Site Settings > Build & Deploy > Environment variables
+1. **Missing Environment Variables**: Check Vercel Dashboard → Project → Settings → Environment Variables
 2. **Incorrect Variable Names**: Make sure variable names match exactly (case-sensitive)
-3. **Plugin Not Installed**: The `@netlify/plugin-nextjs` plugin is required
 
 **Verify your configuration by checking browser console - you should see error messages like "Supabase belum dikonfigurasi" if variables are missing.**
 
@@ -103,8 +123,8 @@ This error occurs when Supabase environment variables are **NOT** configured. Co
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| 502 on /api/auth/login | Missing `NEXT_PUBLIC_SUPABASE_URL` | Add the variable in Netlify env |
-| 502 on /api/products | Missing Supabase config | Add both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| 502 on `/api/auth/login` | Missing `NEXT_PUBLIC_SUPABASE_URL` | Add the variable in Vercel env |
+| 502 on `/api/products` | Missing Supabase config | Add both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
 | Login fails after deployment | Wrong keys or missing user in database | Check Supabase keys and create user in Auth + Database |
 
 ## Important Notes
@@ -138,4 +158,6 @@ src/
 
 supabase/
 └── migrations/
-    └── 01_initial_schema.sql  # Supabase database schema
+    ├── 01_initial_schema.sql  # Supabase database schema
+    ├── 02_auth_trigger.sql    # Auth trigger
+    └── 03_fix_users_rls.sql   # RLS policy fixes
