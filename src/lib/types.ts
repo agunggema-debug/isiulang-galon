@@ -1,5 +1,8 @@
 // Shared types for the application
 
+// Type alias for user roles (fixes SonarQube warning)
+export type UserRole = "admin" | "wholesale" | "retail";
+
 // Supabase Database Schema Types
 export interface SupabaseDatabase {
   public: {
@@ -10,7 +13,7 @@ export interface SupabaseDatabase {
           email: string;
           password?: string;
           name: string;
-          role: "admin" | "wholesale" | "retail";
+          role: UserRole;
           phone: string;
           address: string;
           created_at: string;
@@ -20,7 +23,7 @@ export interface SupabaseDatabase {
           email: string;
           password?: string;
           name: string;
-          role?: "admin" | "wholesale" | "retail";
+          role?: UserRole;
           phone?: string;
           address?: string;
         };
@@ -28,7 +31,7 @@ export interface SupabaseDatabase {
           email?: string;
           password?: string;
           name?: string;
-          role?: "admin" | "wholesale" | "retail";
+          role?: UserRole;
           phone?: string;
           address?: string;
         };

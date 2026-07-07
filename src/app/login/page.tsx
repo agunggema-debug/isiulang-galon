@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Droplets, Flame, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -41,12 +41,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F4C81]/5 via-white to-[#10B981]/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#0F4C81]/5 via-white to-[#10B981]/5 flex items-center justify-center p-4">
       {/* Back to Home */}
-      <Link
-        href="/"
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-500 hover:text-[#0F4C81] transition-colors"
-      >
+      <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-500 hover:text-[#0F4C81] transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Kembali
       </Link>
@@ -71,12 +68,8 @@ export default function LoginPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Selamat Datang Kembali
-            </h1>
-            <p className="text-gray-500">
-              Masuk ke akun Anda untuk melanjutkan
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Selamat Datang Kembali</h1>
+            <p className="text-gray-500">Masuk ke akun Anda untuk melanjutkan</p>
           </div>
 
           {/* Error Alert */}
@@ -129,15 +122,12 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-[#0F4C81] focus:ring-[#0F4C81]/20"
-                />
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#0F4C81] focus:ring-[#0F4C81]/20" />
                 <span className="text-sm text-gray-600">Ingat saya</span>
               </label>
-              <a href="#" className="text-sm text-[#0F4C81] hover:underline">
+              <button type="button" className="text-sm text-[#0F4C81] hover:underline bg-transparent border-none p-0 cursor-pointer">
                 Lupa kata sandi?
-              </a>
+              </button>
             </div>
 
             <Button type="submit" className="w-full font-semibold" disabled={loading}>
@@ -149,10 +139,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Belum punya akun?{" "}
-              <Link
-                href="/register"
-                className="text-[#0F4C81] font-medium hover:underline"
-              >
+              <Link href="/register" className="text-[#0F4C81] font-medium hover:underline">
                 Daftar Sekarang
               </Link>
             </p>

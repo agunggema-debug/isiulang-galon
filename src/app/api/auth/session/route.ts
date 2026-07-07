@@ -1,34 +1,17 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function GET() {
   try {
-    // Check if Supabase is configured
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = await createSupabaseServerClient();
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabase) {
       return NextResponse.json(
         { authenticated: false, error: "Supabase belum dikonfigurasi" },
         { status: 500 }
       );
     }
-
-    const cookieStore = await cookies();
-
-    const supabase = createServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
 
     const {
       data: { user },

@@ -4,7 +4,7 @@ import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function GET() {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
       return NextResponse.json(

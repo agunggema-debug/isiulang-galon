@@ -1,26 +1,17 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/lib/supabase";
 import { methodNotAllowed } from "@/lib/api-helpers";
 
 export async function POST() {
   try {
-    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          remove(name: string) {
-            cookieStore.delete(name);
-          },
-        },
-      }
-    );
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: "Supabase belum dikonfigurasi" },
+        { status: 500 }
+      );
+    }
 
     const { error } = await supabase.auth.signOut();
 
@@ -29,7 +20,7 @@ export async function POST() {
     }
 
     const response = NextResponse.json({ success: true });
-    
+
     // Clear auth cookies
     response.cookies.set("sb-access-token", "", {
       httpOnly: true,

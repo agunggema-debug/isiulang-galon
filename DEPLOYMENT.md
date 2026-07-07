@@ -59,9 +59,35 @@ In Netlify Dashboard > Site Settings > Build & Deploy > Environment > Environmen
 After deployment:
 1. Go to Supabase Dashboard > Authentication > Users
 2. Click "Add user" and create admin user
-3. In user metadata, add: `{"role": "admin"}`
+3. **In user metadata, add:**
+   ```json
+   {
+     "role": "admin",
+     "name": "Admin Name"
+   }
+   ```
+   
+   > **Note:** The system now automatically creates user profiles in the `users` table upon first login. Just set the `role` in user metadata.
 
 ## Troubleshooting
+
+### User tidak ditemukan di database (Error 404)
+
+This error means the user exists in Supabase Auth but not in the `users` table. Solutions:
+
+1. **Make sure user has metadata with role**: When creating user in Supabase Auth, add `{"role": "admin"}` in user metadata
+2. **The latest code auto-creates user profile**: If user doesn't exist in `users` table after login, it will be created automatically
+3. **If still failing, manually insert user**:
+   ```sql
+   INSERT INTO users (email, name, role, phone, address)
+   VALUES ('admin@aquagas.com', 'Admin', 'admin', '', '');
+   ```
+
+### 401 Unauthorized after login
+
+This happens when:
+1. Service role key is missing - check `SUPABASE_SERVICE_ROLE_KEY` in Netlify env
+2. RLS policies are blocking access - run the updated migration again
 
 ### 502 Bad Gateway Errors on API Routes
 

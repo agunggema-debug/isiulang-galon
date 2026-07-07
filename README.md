@@ -1,5 +1,5 @@
 ````markdown
-# AquaGas Premium - E-Commerce Platform
+# IsiUlang- Galon - E-Commerce Platform
 
 Platform e-commerce modern untuk pemesanan air galon murni, gas elpiji, dan air mineral kemasan. Dibangun dengan Next.js dan siap untuk di-deploy ke Netlify + Supabase.
 

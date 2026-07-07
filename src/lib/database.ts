@@ -1,12 +1,10 @@
 // Database layer - SQLite for local development
 import SqliteDB from "better-sqlite3";
-import path from "path";
-import bcrypt from "bcryptjs";
+import path from "node:path";
 
 const DB_PATH = path.join(process.cwd(), "aquagas.db");
 
 declare global {
-  // eslint-disable-next-line no-var
   var __db: SqliteDB.Database | undefined;
 }
 
@@ -137,9 +135,6 @@ export function initDatabase(): void {
 function seedDatabase(db: SqliteDatabase): void {
   const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get() as { count: number };
   if (userCount.count > 0) return;
-
-  const hasher = bcrypt.hashSync;
-  // ... seed logic simplified
 }
 
 export function closeDb(): void {

@@ -11,24 +11,28 @@ interface User {
   address: string;
 }
 
+function getRedirectUrl(role: User["role"]): string {
+  if (role === "admin") {
+    return "/admin/dashboard";
+  }
+  if (role === "wholesale") {
+    return "/shop?role=wholesale";
+  }
+  return "/shop?role=retail";
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json(
-        { success: false, error: "Email dan password harus diisi" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Email dan password harus diisi" }, { status: 400 });
     }
 
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
-      return NextResponse.json(
-        { success: false, error: "Supabase belum dikonfigurasi" },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: "Supabase belum dikonfigurasi" }, { status: 500 });
     }
 
     // Sign in with Supabase Auth
@@ -38,45 +42,51 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      return NextResponse.json(
-        { success: false, error: error.message || "Email atau password salah" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: error.message || "Email atau password salah" }, { status: 401 });
     }
 
-    // Get user profile from our users table
-    const { data: userData } = await supabase
-      .from("users")
-      .select("id, email, name, role, phone, address")
-      .eq("email", email)
-      .single();
+    // Get user profile from our users table (using service role to bypass RLS)
+    const { data: userData } = await supabase.from("users").select("id, email, name, role, phone, address").eq("email", email).single();
 
+    let finalUserData = userData;
+
+    // If user doesn't exist in our users table, create it automatically
     if (!userData) {
-      return NextResponse.json(
-        { success: false, error: "User tidak ditemukan di database" },
-        { status: 404 }
-      );
+      const userMetadata = data.user?.user_metadata || {};
+
+      const { data: newUser, error: createError } = await supabase
+        .from("users")
+        .insert({
+          email: email,
+          name: userMetadata.name || email.split("@")[0],
+          role: userMetadata.role || "retail",
+          phone: userMetadata.phone || "",
+          address: userMetadata.address || "",
+        })
+        .select("id, email, name, role, phone, address")
+        .single();
+
+      if (createError) {
+        console.error("Create user error:", createError);
+        return NextResponse.json({ success: false, error: "Gagal membuat profil user" }, { status: 500 });
+      }
+
+      finalUserData = newUser;
     }
 
-    // Set session cookie from Supabase
-    const response = NextResponse.json({
-      success: true,
-      user: userData as User,
-      redirectUrl: (userData as User).role === "admin"
-        ? "/admin/dashboard"
-        : (userData as User).role === "wholesale"
-        ? "/shop?role=wholesale"
-        : "/shop?role=retail",
-    });
+    if (!finalUserData) {
+      return NextResponse.json({ success: false, error: "User tidak ditemukan di database" }, { status: 404 });
+    }
 
-    // Supabase sets its own cookies automatically via @supabase/ssr
-    return response;
+    // Return success - Supabase SSR client automatically handles session cookies
+    return NextResponse.json({
+      success: true,
+      user: finalUserData,
+      redirectUrl: getRedirectUrl(finalUserData.role),
+    });
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json(
-      { success: false, error: "Terjadi kesalahan server" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan server" }, { status: 500 });
   }
 }
 

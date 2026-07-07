@@ -1,5 +1,7 @@
 // Supabase client configuration
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 // Environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,24 +17,39 @@ let supabaseClient: any = null;
 
 if (hasSupabaseConfig) {
   supabaseClient = createClient(
-    supabaseUrl!,
-    supabaseAnonKey!
+    supabaseUrl,
+    supabaseAnonKey
   );
 }
 
 // Client-side Supabase client (for use in client components)
 export const supabase = supabaseClient;
 
-// Server-side Supabase client for API routes
-export function createSupabaseServerClient() {
+// Server-side Supabase client for API routes (uses SSR for proper cookie handling)
+export async function createSupabaseServerClient() {
   if (!hasSupabaseConfig) {
     return null;
   }
 
-  const apiKey = supabaseServiceKey || supabaseAnonKey;
-  
-  return createClient(
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
     supabaseUrl!,
-    apiKey!
+    supabaseAnonKey!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: Record<string, unknown>) {
+          cookieStore.set(name, value, options);
+        },
+        remove(name: string, options: Record<string, unknown>) {
+          cookieStore.set(name, "", { ...options, maxAge: 0 });
+        },
+      },
+    }
   );
+
+  return supabase;
 }

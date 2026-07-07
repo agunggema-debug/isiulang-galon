@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -73,12 +73,9 @@ export default function RegisterPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#0F4C81]/5 via-white to-[#10B981]/5 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-[#0F4C81]/5 via-white to-[#10B981]/5 flex items-center justify-center p-4">
         {/* Back to Home */}
-        <Link
-          href="/"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-500 hover:text-[#0F4C81] transition-colors"
-        >
+        <Link href="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-500 hover:text-[#0F4C81] transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Kembali
         </Link>
@@ -103,12 +100,8 @@ export default function RegisterPage() {
 
             {/* Header */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Buat Akun Baru
-              </h1>
-              <p className="text-gray-500">
-                Daftar untuk mulai berbelanja
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Buat Akun Baru</h1>
+              <p className="text-gray-500">Daftar untuk mulai berbelanja</p>
             </div>
 
             {/* Error Alert */}
@@ -242,12 +235,7 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Sudah punya akun?{" "}
-                <button
-                  type="button"
-                  onClick={() => setIsLoginOpen(true)}
-                  className="text-[#0F4C81] font-medium hover:underline"
-                  disabled={loading}
-                >
+                <button type="button" onClick={() => setIsLoginOpen(true)} className="text-[#0F4C81] font-medium hover:underline" disabled={loading}>
                   Masuk Sekarang
                 </button>
               </p>
@@ -257,10 +245,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-      />
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
   );
 }

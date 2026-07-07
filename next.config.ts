@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Turbopack config - silence the warning
-  turbopack: {},
-  
   // Disable image optimization for Netlify (use their built-in)
   images: {
     unoptimized: true,
