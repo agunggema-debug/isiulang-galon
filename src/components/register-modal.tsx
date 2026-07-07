@@ -85,19 +85,13 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 animate-in zoom-in-95 duration-200">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10 max-h-[90vh] overflow-y-auto">
           {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
-          >
+          <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
             <X className="h-5 w-5" />
           </button>
 
@@ -109,21 +103,17 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
                 <Flame className="h-5 w-5 text-[#10B981] -ml-1" />
               </div>
               <span className="text-xl font-bold tracking-tight">
-                <span className="text-[#0F4C81]">Aqua</span>
-                <span className="text-[#10B981]">Gas</span>
-                <span className="text-[#0F4C81]"> Premium</span>
+                <span className="text-[#0F4C81]">Water</span>
+                <span className="text-[#10B981]">Fresh</span>
+                <span className="text-[#0F4C81]"> .</span>
               </span>
             </div>
           </div>
 
           {/* Header */}
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-1">
-              Buat Akun Baru
-            </h2>
-            <p className="text-sm text-gray-500">
-              Daftar untuk mulai berbelanja
-            </p>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Buat Akun Baru</h2>
+            <p className="text-sm text-gray-500">Daftar untuk mulai berbelanja</p>
           </div>
 
           {/* Error Alert */}
@@ -257,12 +247,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Sudah punya akun?{" "}
-              <button
-                type="button"
-                onClick={onSwitchToLogin}
-                className="text-[#0F4C81] font-medium hover:underline"
-                disabled={loading}
-              >
+              <button type="button" onClick={onSwitchToLogin} className="text-[#0F4C81] font-medium hover:underline" disabled={loading}>
                 Masuk Sekarang
               </button>
             </p>

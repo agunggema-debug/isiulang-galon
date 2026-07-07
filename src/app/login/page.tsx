@@ -59,9 +59,9 @@ export default function LoginPage() {
                 <Flame className="h-5 w-5 text-[#10B981] -ml-1" />
               </div>
               <span className="text-xl font-bold tracking-tight">
-                <span className="text-[#0F4C81]">Aqua</span>
-                <span className="text-[#10B981]">Gas</span>
-                <span className="text-[#0F4C81]"> Premium</span>
+                <span className="text-[#0F4C81]">Water</span>
+                <span className="text-[#10B981]">Fress</span>
+                <span className="text-[#0F4C81]"> .</span>
               </span>
             </Link>
           </div>
