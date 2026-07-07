@@ -60,19 +60,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center">
         {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-          onClick={onClose}
-        />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
         {/* Modal */}
         <div className="relative w-full max-w-md mx-4 animate-in zoom-in-95 duration-200">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 sm:p-10 max-h-[90vh] overflow-y-auto">
             {/* Close Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
-            >
+            <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
               <X className="h-5 w-5" />
             </button>
 
@@ -93,12 +87,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             {/* Header */}
             <div className="text-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">
-                Selamat Datang Kembali
-              </h2>
-              <p className="text-sm text-gray-500">
-                Masuk ke akun Anda untuk melanjutkan
-              </p>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Selamat Datang Kembali</h2>
+              <p className="text-sm text-gray-500">Masuk ke akun Anda untuk melanjutkan</p>
             </div>
 
             {/* Error Alert */}
@@ -158,12 +148,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Belum punya akun?{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowRegister(true)}
-                  className="text-[#0F4C81] font-medium hover:underline"
-                  disabled={loading}
-                >
+                <button type="button" onClick={() => setShowRegister(true)} className="text-[#0F4C81] font-medium hover:underline" disabled={loading}>
                   Daftar Sekarang
                 </button>
               </p>
@@ -173,11 +158,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       </div>
 
       {/* Register Modal */}
-      <RegisterModal
-        isOpen={showRegister}
-        onClose={handleCloseRegister}
-        onSwitchToLogin={() => setShowRegister(false)}
-      />
+      <RegisterModal isOpen={showRegister} onClose={handleCloseRegister} onSwitchToLogin={() => setShowRegister(false)} />
     </>
   );
 }

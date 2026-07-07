@@ -6,9 +6,9 @@ import Image from "next/image";
 import { Mail, Phone, MapPin, Globe, MessageCircle, Camera } from "lucide-react";
 
 export default function Footer() {
-  const [storeName, setStoreName] = useState("AquaGas Premium");
-  const [storePhone, setStorePhone] = useState("+62 812-3456-7890");
-  const [storeAddress, setStoreAddress] = useState("Jl. Contoh No. 123, Jakarta");
+  const [storeName, setStoreName] = useState("Water Fresh");
+  const [storePhone, setStorePhone] = useState("+62 813-2186-3926");
+  const [storeAddress, setStoreAddress] = useState("Jl. Selacau No. 50A Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561");
   const [storeEmail, setStoreEmail] = useState("feyhareudang@gmail.com");
 
   useEffect(() => {

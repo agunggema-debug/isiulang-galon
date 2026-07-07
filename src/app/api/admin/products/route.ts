@@ -319,5 +319,60 @@ export async function PUT(request: Request) {
   }
 }
 
-export const PATCH = () => methodNotAllowed(["GET", "POST", "PUT"]);
-export const DELETE = () => methodNotAllowed(["GET", "POST", "PUT"]);
+export async function DELETE(request: Request) {
+  try {
+    const session = await getSession();
+    if (!session || session.user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "ID produk harus diisi" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = createSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase belum dikonfigurasi" }, { status: 500 });
+    }
+
+    // Check if product exists
+    const { data: product } = await supabase
+      .from("products")
+      .select("id")
+      .eq("id", parseInt(id))
+      .single();
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Produk tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    const { error: deleteError } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", parseInt(id));
+
+    if (deleteError) {
+      console.error("Delete product error:", deleteError);
+      return NextResponse.json({ error: "Gagal menghapus produk" }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "Produk berhasil dihapus" });
+  } catch (error) {
+    console.error("Delete product error:", error);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan server" },
+      { status: 500 }
+    );
+  }
+}
+
+export const PATCH = () => methodNotAllowed(["GET", "POST", "PUT", "DELETE"]);

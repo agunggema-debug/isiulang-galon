@@ -15,7 +15,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "bot",
-      text: "👋 Halo! Selamat datang di **AquaGas Premium**.\n\nAda yang bisa saya bantu? Silakan pilih pertanyaan di bawah ini atau ketik pertanyaan Anda!",
+      text: "👋 Halo! Selamat datang di **Water Fresh**.\n\nAda yang bisa saya bantu? Silakan pilih pertanyaan di bawah ini atau ketik pertanyaan Anda!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -91,8 +91,8 @@ export default function Chatbot() {
                 <Bot className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white text-sm">AquaBot</h3>
-                <p className="text-xs text-white/80">Asisten Virtual AquaGas</p>
+                <h3 className="font-semibold text-white text-sm">Water Fresh Bot</h3>
+                <p className="text-xs text-white/80">Asisten Virtual Water Fresh</p>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 bg-green-400 rounded-full animate-pulse" />
