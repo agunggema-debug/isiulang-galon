@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { getSession, initAuth } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Dashboard Admin | AquaGas Premium",
-  description: "Panel kontrol admin AquaGas Premium",
+  title: "Dashboard Admin | Water Fresh",
+  description: "Panel kontrol admin Water Fresh",
 };
 
 export default async function AdminLayout({

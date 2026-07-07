@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Droplets, Flame, Mail, Phone, MapPin, Globe, MessageCircle, Camera } from "lucide-react";
+import Image from "next/image";
+import { Mail, Phone, MapPin, Globe, MessageCircle, Camera } from "lucide-react";
 
 export default function Footer() {
   const [storeName, setStoreName] = useState("AquaGas Premium");
@@ -31,10 +32,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="relative flex items-center">
-                <Droplets className="h-6 w-6 text-white" />
-                <Flame className="h-4 w-4 text-[#10B981] -ml-1" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="h-8 w-auto brightness-0 invert"
+              />
               <span className="text-lg font-bold">
                 {storeName}
               </span>

@@ -10,24 +10,18 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AquaGas Premium - Air Galon & Gas Elpiji Terpercaya",
-  description:
-    "Platform e-commerce premium untuk pemesanan air galon murni dan gas elpiji berkualitas tinggi. Layanan antar cepat, higienis, dan terpercaya.",
-  keywords: [
-    "air galon",
-    "gas elpiji",
-    "isi ulang air",
-    "gas 3kg",
-    "air mineral",
-    "aquagas premium",
-  ],
+  title: "Water fresh - Air Galon & Gas Elpiji Terpercaya",
+  description: "Platform e-commerce premium untuk pemesanan air galon murni dan gas elpiji berkualitas tinggi. Layanan antar cepat, higienis, dan terpercaya.",
+  keywords: ["air galon", "gas elpiji", "isi ulang air", "gas 3kg", "air mineral", "water fresh"],
+  icons: {
+    icon: "/logo.ico",
+  },
   openGraph: {
-    title: "AquaGas Premium - Air Galon & Gas Elpiji Terpercaya",
-    description:
-      "Platform e-commerce premium untuk pemesanan air galon murni dan gas elpiji berkualitas tinggi.",
+    title: "Water Fresh - Air Galon & Gas Elpiji Terpercaya",
+    description: "Platform e-commerce premium untuk pemesanan air galon murni dan gas elpiji berkualitas tinggi.",
     type: "website",
     locale: "id_ID",
-    siteName: "AquaGas Premium",
+    siteName: "Water Fresh",
   },
   twitter: {
     card: "summary_large_image",

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Droplets, Flame, ShoppingCart, User, Search, Menu, X, LogOut } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, X, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import CartButton from "./cart-button";
 
@@ -32,10 +33,14 @@ export default function ShopNavbar() {
   // Get role label in Indonesian
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case "admin": return "Admin";
-      case "wholesale": return "Grosir";
-      case "retail": return "Pelanggan";
-      default: return "User";
+      case "admin":
+        return "Admin";
+      case "wholesale":
+        return "Grosir";
+      case "retail":
+        return "Pelanggan";
+      default:
+        return "User";
     }
   };
 
@@ -46,13 +51,17 @@ export default function ShopNavbar() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link href="/shop" className="flex items-center gap-2 group">
-              <div className="relative flex items-center">
-                <Droplets className="h-7 w-7 text-[#0F4C81]" />
-                <Flame className="h-5 w-5 text-[#10B981] -ml-1" />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={36}
+                height={36}
+                className="h-9 w-auto"
+                priority
+              />
               <span className="text-xl font-bold tracking-tight">
-                <span className="text-[#0F4C81]">Aqua</span>
-                <span className="text-[#10B981]">Gas</span>
+                <span className="text-[#0F4C81]">Water</span>
+                <span className="text-[#10B981]">Fresh</span>
               </span>
             </Link>
 
@@ -85,12 +94,7 @@ export default function ShopNavbar() {
                       <p className="text-[10px] text-gray-500">{getRoleLabel(user.role)}</p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
-                    onClick={handleLogout}
-                  >
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" />
                     Keluar
                   </Button>
@@ -99,11 +103,7 @@ export default function ShopNavbar() {
             </div>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-[#0F4C81] transition-colors"
-              aria-label="Toggle menu"
-            >
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:text-[#0F4C81] transition-colors" aria-label="Toggle menu">
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -114,11 +114,7 @@ export default function ShopNavbar() {
               {/* Mobile Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Cari produk..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#0F4C81] outline-none transition-all text-sm"
-                />
+                <input type="text" placeholder="Cari produk..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#0F4C81] outline-none transition-all text-sm" />
               </div>
 
               {/* Mobile User Info */}
@@ -149,10 +145,7 @@ export default function ShopNavbar() {
               )}
 
               {/* Mobile Cart */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="flex items-center justify-between p-3 bg-[#0F4C81]/5 rounded-xl w-full"
-              >
+              <button onClick={() => setIsCartOpen(true)} className="flex items-center justify-between p-3 bg-[#0F4C81]/5 rounded-xl w-full">
                 <div className="flex items-center gap-3">
                   <ShoppingCart className="h-5 w-5 text-[#0F4C81]" />
                   <span className="text-sm font-medium text-gray-900">Keranjang</span>
@@ -166,15 +159,15 @@ export default function ShopNavbar() {
 
       {/* Cart Sidebar - Only rendered on client */}
       {isCartOpen && (
-        <GuestCartWrapper 
-          onClose={() => setIsCartOpen(false)} 
+        <GuestCartWrapper
+          onClose={() => setIsCartOpen(false)}
           onCheckout={() => {
             setIsCartOpen(false);
             setIsLoginOpen(true);
           }}
         />
       )}
-      
+
       {/* Login Modal */}
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
