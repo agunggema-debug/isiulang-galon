@@ -7,9 +7,9 @@ import { Droplets, Flame, Mail, Lock, User, Phone, MapPin, X, AlertCircle } from
 import { useAuth } from "@/contexts/auth-context";
 
 interface RegisterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSwitchToLogin: () => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSwitchToLogin: () => void;
 }
 
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
@@ -26,7 +26,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -83,9 +83,15 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 z-100 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="Close modal"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm border-0 p-0 cursor-default"
+        onClick={onClose}
+        tabIndex={-1}
+      />
 
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 animate-in zoom-in-95 duration-200">

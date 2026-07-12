@@ -105,17 +105,17 @@ export default function Footer() {
             <h3 className="font-semibold text-white mb-4">Kontak</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                <MapPin className="h-5 w-5 text-[#10B981] shrink-0 mt-0.5" />
                 <span className="text-sm text-blue-200">{storeAddress}</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-[#10B981] flex-shrink-0" />
+                <Phone className="h-5 w-5 text-[#10B981] shrink-0" />
                 <a href={`tel:${storePhone.replace(/\s/g, "")}`} className="text-sm text-blue-200 hover:text-white transition-colors">
                   {storePhone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-[#10B981] flex-shrink-0" />
+                <Mail className="h-5 w-5 text-[#10B981] shrink-0" />
                 <a href={`mailto:${storeEmail}`} className="text-sm text-blue-200 hover:text-white transition-colors">
                   {storeEmail}
                 </a>
