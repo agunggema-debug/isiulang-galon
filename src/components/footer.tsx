@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Globe, MessageCircle, Camera } from "lucide-react";
+import { Mail, Phone, MapPin, Globe, MessageCircle, Camera, Users } from "lucide-react";
 
 export default function Footer() {
   const [storeName, setStoreName] = useState("Water Fresh");
   const [storePhone, setStorePhone] = useState("+62 813-2186-3926");
   const [storeAddress, setStoreAddress] = useState("Jl. Selacau No. 50A Kec. Batujajar, Kabupaten Bandung Barat, Jawa Barat 40561");
   const [storeEmail, setStoreEmail] = useState("feyhareudang@gmail.com");
+  const [onlineVisitors, setOnlineVisitors] = useState(0);
+  const [totalVisitors, setTotalVisitors] = useState(0);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -23,6 +25,22 @@ export default function Footer() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const fetchVisitorStats = () => {
+      fetch("/api/visitor-stats")
+        .then((res) => res.json())
+        .then((data) => {
+          setOnlineVisitors(data.onlineVisitors ?? 0);
+          setTotalVisitors(data.totalVisitors ?? 0);
+        })
+        .catch(() => {});
+    };
+
+    fetchVisitorStats();
+    const interval = setInterval(fetchVisitorStats, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -112,6 +130,16 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} {storeName}. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 text-sm text-blue-200">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                {onlineVisitors} online
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5" />
+                {totalVisitors.toLocaleString("id-ID")} total
+              </span>
+            </div>
             <Link href="#" className="text-sm text-blue-200 hover:text-white transition-colors">
               Kebijakan Privasi
             </Link>
